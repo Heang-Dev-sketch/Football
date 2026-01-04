@@ -3,159 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Player Manager - New Config</title>
+    <title>គ្រប់គ្រងកីឡាករ - Cloud Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Kantumruy Pro', sans-serif; }
-        .jersey-badge {
-            background-image: radial-gradient(circle at center, #3b82f6 0%, #1e40af 100%);
-        }
+        .bg-main { background-color: #f1f5f9; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+<body class="bg-main min-h-screen">
 
     <!-- Navbar -->
-    <nav class="bg-blue-700 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <nav class="bg-blue-800 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-white p-2 rounded-xl shadow-inner">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <div class="bg-white p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold leading-none">គ្រប់គ្រងកីឡាករ</h1>
-                    <p class="text-[10px] text-blue-200 uppercase tracking-widest mt-1">Football Management System</p>
-                </div>
+                <h1 class="text-xl font-bold">ប្រព័ន្ធគ្រប់គ្រងកីឡាករ</h1>
             </div>
-            <div id="statusIndicator" class="flex items-center gap-2 bg-blue-800 px-4 py-1.5 rounded-full text-xs font-medium border border-blue-600">
-                <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
-                <span id="statusText">កំពុងភ្ជាប់...</span>
+            <div id="authStatus" class="flex items-center gap-2 bg-blue-900 px-4 py-1.5 rounded-full text-xs">
+                <span id="statusDot" class="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+                <span id="statusText">កំពុងតភ្ជាប់...</span>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Sidebar: Add Player -->
+            
+            <!-- Side Form -->
             <div class="lg:col-span-4">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sticky top-28">
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 card-shadow sticky top-24">
                     <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        ចុះឈ្មោះកីឡាករថ្មី
+                        <span class="w-1.5 h-5 bg-blue-600 rounded-full"></span>
+                        ចុះឈ្មោះកីឡាករ
                     </h2>
-
                     <form id="playerForm" class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase ml-1">ឈ្មោះពេញ</label>
-                            <input type="text" id="playerName" required placeholder="ឧ. សុខ ជា" 
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1 ml-1 uppercase">ឈ្មោះកីឡាករ</label>
+                            <input type="text" id="pName" required placeholder="បញ្ចូលឈ្មោះ..." 
                                 class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all">
                         </div>
-
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">លេខអាវ</label>
-                                <input type="number" id="playerNumber" required placeholder="10" 
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1 uppercase">លេខអាវ</label>
+                                <input type="number" id="pNumber" required placeholder="10" 
                                     class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all">
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">ទំហំអាវ</label>
-                                <select id="playerSize" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none bg-white appearance-none cursor-pointer">
-                                    <option value="S">S</option>
-                                    <option value="M">M</option>
-                                    <option value="L" selected>L</option>
-                                    <option value="XL">XL</option>
-                                    <option value="XXL">XXL</option>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1 uppercase">ទំហំអាវ</label>
+                                <select id="pSize" class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white outline-none">
+                                    <option value="S">S</option><option value="M">M</option><option value="L" selected>L</option><option value="XL">XL</option><option value="XXL">XXL</option>
                                 </select>
                             </div>
                         </div>
-
-                        <button type="submit" id="saveBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-100 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2">
-                            <span>រក្សាទុកទិន្នន័យ</span>
+                        <button type="submit" id="saveBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex justify-center items-center">
+                            រក្សាទុកចូល Cloud
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Main Content: Player List -->
-            <div class="lg:col-span-8 space-y-6">
-                <!-- List Content -->
-                <div id="playersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="col-span-full py-20 text-center">
-                        <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <p class="text-slate-400">កំពុងទាញយកទិន្នន័យពី Firebase...</p>
+            <!-- List Display -->
+            <div class="lg:col-span-8">
+                <div id="playerList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Loading State -->
+                    <div class="col-span-full py-20 text-center text-slate-400">
+                        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        កំពុងទាញយកទិន្នន័យ...
                     </div>
                 </div>
             </div>
+
         </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCvLqWsufIGI5HYcIdxNsfgEBewHGpmgRc",
             authDomain: "football-f6834.firebaseapp.com",
             projectId: "football-f6834",
             storageBucket: "football-f6834.firebasestorage.app",
             messagingSenderId: "484850594422",
-            appId: "1:484850594422:web:d2866070b4b429de97e557",
-            measurementId: "G-PQ6T0C078H"
+            appId: "1:484850594422:web:d2866070b4b429de97e557"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const COLLECTION_NAME = "players_data"; // ប្រើឈ្មោះ Collection ច្បាស់លាស់
-        const playersRef = collection(db, COLLECTION_NAME);
+        const playerCollection = "players_official"; // Collection Name
 
-        const playerForm = document.getElementById('playerForm');
-        const playersContainer = document.getElementById('playersContainer');
+        // ១. បើកមុខងារ Offline Persistence (ការពារការដាច់ពេល Refresh)
+        enableIndexedDbPersistence(db).catch((err) => {
+            console.error("Persistence error:", err.code);
+        });
+
+        const playerList = document.getElementById('playerList');
         const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
 
-        // Auth
+        // ២. គ្រប់គ្រងការចូលប្រើប្រាស់ (Authentication)
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 statusText.innerText = "អនឡាញ (Online)";
-                document.getElementById('statusIndicator').querySelector('span').classList.replace('bg-yellow-400', 'bg-green-500');
-                startSync();
+                statusDot.classList.replace('bg-red-500', 'bg-green-500');
+                listenToPlayers();
             } else {
-                signInAnonymously(auth).catch(err => console.error(err));
+                signInAnonymously(auth).catch(err => alert("សូមបើក Anonymous Auth ក្នុង Firebase!"));
             }
         });
 
-        // Sync Data
-        function startSync() {
-            const q = query(playersRef, orderBy("number", "asc"));
+        // ៣. ទាញយកទិន្នន័យពី Cloud បែប Real-time
+        function listenToPlayers() {
+            const q = query(collection(db, playerCollection), orderBy("number", "asc"));
             onSnapshot(q, (snapshot) => {
                 const players = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                render(players);
+                renderPlayers(players);
+            }, (error) => {
+                console.error("Snapshot error:", error);
             });
         }
 
-        // Render UI
-        function render(data) {
+        // ៤. បង្ហាញ UI
+        function renderPlayers(data) {
             if (data.length === 0) {
-                playersContainer.innerHTML = `<div class="col-span-full py-16 bg-white rounded-3xl border-2 border-dashed border-slate-200 text-center text-slate-400">មិនទាន់មានទិន្នន័យ</div>`;
+                playerList.innerHTML = `<div class="col-span-full py-16 bg-white rounded-3xl border-2 border-dashed border-slate-200 text-center text-slate-400 font-medium">មិនមានកីឡាករក្នុងបញ្ជីនៅឡើយទេ</div>`;
                 return;
             }
-            playersContainer.innerHTML = data.map(p => `
-                <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between group">
+
+            playerList.innerHTML = data.map(p => `
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-blue-500 transition-all">
                     <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 jersey-badge rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
+                        <div class="w-12 h-12 bg-blue-700 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-100 italic">
                             ${p.number}
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-800">${p.name}</h3>
-                            <p class="text-[10px] font-bold text-blue-500 uppercase">Size: ${p.size}</p>
+                            <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md uppercase border border-blue-100">
+                                Size: ${p.size}
+                            </span>
                         </div>
                     </div>
-                    <button onclick="window.confirmDelete('${p.id}', '${p.name}')" class="p-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                    
+                    <!-- មុខងារលុប (Delete Button) -->
+                    <button onclick="window.confirmDelete('${p.id}', '${p.name}')" 
+                        class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -164,27 +166,37 @@
             `).join('');
         }
 
-        // Add
-        playerForm.addEventListener('submit', async (e) => {
+        // ៥. បន្ថែមកីឡាករ
+        document.getElementById('playerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.innerText = "កំពុងរក្សាទុក...";
+
             try {
-                await addDoc(playersRef, {
-                    name: document.getElementById('playerName').value,
-                    number: parseInt(document.getElementById('playerNumber').value),
-                    size: document.getElementById('playerSize').value,
+                await addDoc(collection(db, playerCollection), {
+                    name: document.getElementById('pName').value,
+                    number: parseInt(document.getElementById('pNumber').value),
+                    size: document.getElementById('pSize').value,
                     createdAt: new Date()
                 });
-                playerForm.reset();
-            } catch (err) { alert(err.message); }
-            finally { saveBtn.disabled = false; }
+                document.getElementById('playerForm').reset();
+            } catch (err) {
+                alert("រក្សាទុកមិនបានសម្រេច: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "រក្សាទុកចូល Cloud";
+            }
         });
 
-        // Delete (មុខងារលុបដែលអ្នកត្រូវការ)
+        // ៦. លុបកីឡាករ (Delete Function)
         window.confirmDelete = async (id, name) => {
-            if (confirm(`តើអ្នកចង់លុបកីឡាករ "${name}" ឬ?`)) {
-                await deleteDoc(doc(db, COLLECTION_NAME, id));
+            if (confirm(`តើអ្នកចង់លុបកីឡាករ "${name}" ចេញពីបញ្ជី?`)) {
+                try {
+                    await deleteDoc(doc(db, playerCollection, id));
+                } catch (err) {
+                    alert("មិនអាចលុបបាន: " + err.message);
+                }
             }
         };
 
