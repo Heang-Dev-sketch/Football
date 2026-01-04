@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>គ្រប់គ្រងកីឡាករ - Cloud Sync</title>
+    <title>Player Managament</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -23,7 +23,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <h1 class="text-xl font-bold">ប្រព័ន្ធគ្រប់គ្រងកីឡាករ</h1>
+                <h1 class="text-xl font-bold">Manage Player</h1>
             </div>
             <div id="authStatus" class="flex items-center gap-2 bg-blue-900 px-4 py-1.5 rounded-full text-xs">
                 <span id="statusDot" class="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
@@ -40,7 +40,7 @@
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 card-shadow sticky top-24">
                     <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                         <span class="w-1.5 h-5 bg-blue-600 rounded-full"></span>
-                        ចុះឈ្មោះកីឡាករ
+                        Add Player
                     </h2>
                     <form id="playerForm" class="space-y-4">
                         <div>
@@ -62,7 +62,7 @@
                             </div>
                         </div>
                         <button type="submit" id="saveBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex justify-center items-center">
-                            រក្សាទុកចូល Cloud
+                            Save
                         </button>
                     </form>
                 </div>
@@ -185,7 +185,7 @@
                 alert("រក្សាទុកមិនបានសម្រេច: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "រក្សាទុកចូល Cloud";
+                btn.innerText = "Save";
             }
         });
 
