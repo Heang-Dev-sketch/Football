@@ -3,203 +3,615 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Managament</title>
+    <title>LOTUS FC — Player Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; }
-        .bg-main { background-color: #f1f5f9; }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        *, *::before, *::after { font-family: 'Battambang', cursive; box-sizing: border-box; }
+
+        :root {
+            --pink:     #E91E8C;
+            --pink-lt:  #FF69B4;
+            --pink-dk:  #A0135E;
+            --dark:     #0D0D0D;
+            --dark-2:   #1A1A1A;
+            --body-bg:  #FDF0F8;
+            --green:    #10B981;
+            --red:      #EF4444;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 3px; }
+
+        /* ── Keyframes ── */
+        @keyframes glowPulse {
+            0%,100% { box-shadow: 0 0 25px var(--pink), 0 0 50px var(--pink-dk), 0 0 0 4px rgba(233,30,140,.15); }
+            50%      { box-shadow: 0 0 45px var(--pink-lt), 0 0 90px var(--pink), 0 0 0 4px rgba(233,30,140,.30); }
+        }
+        @keyframes floatY {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-14px); }
+        }
+        @keyframes spinSlow {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes spinSlowRev {
+            to { transform: rotate(-360deg); }
+        }
+        @keyframes fadeUp {
+            from { opacity:0; transform: translateY(32px); }
+            to   { opacity:1; transform: translateY(0);   }
+        }
+        @keyframes petalDrift {
+            0%   { transform: translateY(-60px) rotate(0deg) scale(1);   opacity:.7; }
+            100% { transform: translateY(110vh)  rotate(540deg) scale(.4); opacity:0; }
+        }
+        @keyframes badgePulse {
+            0%,100% { opacity:1; }
+            50%      { opacity:.55; }
+        }
+        @keyframes cardIn {
+            from { opacity:0; transform: translateY(20px) scale(.97); }
+            to   { opacity:1; transform: translateY(0)   scale(1);   }
+        }
+
+        /* ── Utility animations ── */
+        .float-logo  { animation: floatY 4.5s ease-in-out infinite; }
+        .glow-ring   { animation: glowPulse 2.4s ease-in-out infinite; }
+        .ring-spin   { animation: spinSlow 22s linear infinite; }
+        .ring-rev    { animation: spinSlowRev 18s linear infinite; }
+        .fade-up     { animation: fadeUp .8s ease-out both; }
+        .badge-pulse { animation: badgePulse 1.6s ease-in-out infinite; }
+
+        /* ── Hero ── */
+        .hero {
+            background: radial-gradient(ellipse 80% 60% at 50% -10%, #4d0030 0%, #1e0014 45%, var(--dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content:'';
+            position:absolute; inset:0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E91E8C' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events:none;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            background: rgba(13,13,13,.92);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(233,30,140,.2);
+        }
+
+        /* ── Stats glass ── */
+        .stat-glass {
+            background: rgba(255,255,255,.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(233,30,140,.18);
+        }
+
+        /* ── Player card ── */
+        .player-card {
+            transition: transform .28s cubic-bezier(.175,.885,.32,1.275), box-shadow .28s ease;
+            animation: cardIn .45s ease-out both;
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 40px rgba(233,30,140,.12);
+        }
+
+        /* ── Form inputs ── */
+        .form-input {
+            border: 1.5px solid #f0d6eb;
+            border-radius: 1rem;
+            padding: .75rem 1rem;
+            width: 100%;
+            font-size: .875rem;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            background: white;
+        }
+        .form-input:focus {
+            border-color: var(--pink);
+            box-shadow: 0 0 0 4px rgba(233,30,140,.08);
+        }
+
+        /* ── Toggle switch ── */
+        .toggle-track {
+            width: 48px; height: 26px;
+            background: #e5e7eb;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background .25s;
+        }
+        .toggle-track.on { background: var(--pink); }
+        .toggle-thumb {
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 20px; height: 20px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0,0,0,.25);
+            transition: transform .25s cubic-bezier(.4,0,.2,1);
+        }
+        .toggle-track.on .toggle-thumb { transform: translateX(22px); }
+
+        /* ── Gradient text ── */
+        .grad-text {
+            background: linear-gradient(125deg, var(--pink-lt), var(--pink), #c2185b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Particles ── */
+        .petal {
+            position: absolute;
+            border-radius: 50% 0 50% 0;
+            background: var(--pink);
+            opacity: 0;
+            animation: petalDrift linear infinite;
+        }
+
+        /* ── Filter buttons ── */
+        .filter-btn { border-radius: .75rem; padding: .4rem 1rem; font-size: .75rem; font-weight: 700; transition: all .2s; }
+        .filter-btn.active { background: var(--pink); color: white; }
+        .filter-btn:not(.active) { color: #9ca3af; }
+        .filter-btn:not(.active):hover { color: var(--pink); }
+
+        body { background: var(--body-bg); }
     </style>
 </head>
-<body class="bg-main min-h-screen">
+<body>
 
-    <!-- Navbar -->
-    <nav class="bg-blue-800 text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-white p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
-                <h1 class="text-xl font-bold">Manage Player</h1>
-            </div>
-            <div id="authStatus" class="flex items-center gap-2 bg-blue-900 px-4 py-1.5 rounded-full text-xs">
-                <span id="statusDot" class="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
-                <span id="statusText">កំពុងតភ្ជាប់...</span>
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav class="navbar fixed top-0 left-0 right-0 z-50 px-5 py-3.5">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="698919228_936599606043531_2458350962490168042_n.jpg"
+                 onerror="this.style.display='none';document.getElementById('navLogoFallback').style.display='flex'"
+                 alt="Lotus Logo" class="w-9 h-9 object-contain rounded-full border border-pink-800">
+            <div id="navLogoFallback" style="display:none"
+                 class="w-9 h-9 rounded-full border-2 border-pink-600 items-center justify-center text-pink-400 font-black text-xs">L</div>
+            <span class="text-white font-bold tracking-widest">LOTUS <span class="grad-text">FC</span></span>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="#addPlayer"
+               class="hidden sm:block text-xs font-bold text-white bg-gradient-to-r from-pink-600 to-pink-800 px-5 py-2 rounded-full shadow-lg shadow-pink-900/30 hover:from-pink-700 hover:to-pink-900 transition-all">
+                + Player
+            </a>
+            <div id="authStatus" class="flex items-center gap-2 bg-gray-900/80 px-3 py-1.5 rounded-full text-xs border border-gray-800">
+                <span id="statusDot" class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                <span id="statusText" class="text-gray-400">Connecting…</span>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main class="max-w-6xl mx-auto p-4 md:p-8">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Side Form -->
-            <div class="lg:col-span-4">
-                <div class="bg-white p-6 rounded-3xl border border-slate-200 card-shadow sticky top-24">
-                    <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span class="w-1.5 h-5 bg-blue-600 rounded-full"></span>
-                        Add Player
-                    </h2>
-                    <form id="playerForm" class="space-y-4">
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<section class="hero min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20 pb-16">
+    <div id="petals" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+    <!-- Concentric rings + logo -->
+    <div class="relative mb-10 z-10">
+        <!-- Outer dashed ring spinning -->
+        <div class="absolute" style="width:300px;height:300px;top:50%;left:50%;margin:-150px 0 0 -150px;">
+            <svg class="ring-spin opacity-25 w-full h-full" viewBox="0 0 300 300">
+                <circle cx="150" cy="150" r="142" fill="none" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="12 9"/>
+                <circle cx="150" cy="150" r="9" fill="var(--pink)" opacity=".6" transform="translate(0,-142)"/>
+            </svg>
+        </div>
+        <!-- Inner dashed ring spinning reverse -->
+        <div class="absolute" style="width:240px;height:240px;top:50%;left:50%;margin:-120px 0 0 -120px;">
+            <svg class="ring-rev opacity-20 w-full h-full" viewBox="0 0 240 240">
+                <circle cx="120" cy="120" r="113" fill="none" stroke="var(--pink-lt)" stroke-width="1" stroke-dasharray="6 10"/>
+            </svg>
+        </div>
+
+        <!-- Logo -->
+        <div class="w-48 h-48 rounded-full glow-ring float-logo flex items-center justify-center
+                    border-4 border-pink-600 bg-black relative z-10 overflow-hidden">
+            <img src="698919228_936599606043531_2458350962490168042_n.jpg"
+                 alt="Lotus Football Team Logo"
+                 onerror="this.onerror=null;this.style.display='none';document.getElementById('heroLogoFallback').style.display='flex'"
+                 class="w-full h-full object-contain p-1">
+            <!-- SVG fallback -->
+            <div id="heroLogoFallback" style="display:none" class="w-full h-full items-center justify-center p-2">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                    <circle cx="100" cy="100" r="96" fill="none" stroke="#E91E8C" stroke-width="4"/>
+                    <circle cx="100" cy="100" r="82" fill="none" stroke="#111" stroke-width="8"/>
+                    <circle cx="100" cy="100" r="76" fill="none" stroke="#E91E8C" stroke-width="1.5"/>
+                    <ellipse cx="100" cy="72" rx="11" ry="30" fill="none" stroke="#eee" stroke-width="2.5"/>
+                    <ellipse cx="100" cy="72" rx="11" ry="28" fill="none" stroke="#eee" stroke-width="2.5" transform="rotate(35,100,100)"/>
+                    <ellipse cx="100" cy="72" rx="11" ry="28" fill="none" stroke="#eee" stroke-width="2.5" transform="rotate(-35,100,100)"/>
+                    <ellipse cx="100" cy="72" rx="9" ry="24" fill="none" stroke="#eee" stroke-width="2" transform="rotate(65,100,100)"/>
+                    <ellipse cx="100" cy="72" rx="9" ry="24" fill="none" stroke="#eee" stroke-width="2" transform="rotate(-65,100,100)"/>
+                    <ellipse cx="100" cy="72" rx="7" ry="20" fill="none" stroke="#eee" stroke-width="1.5" transform="rotate(95,100,100)"/>
+                    <ellipse cx="100" cy="72" rx="7" ry="20" fill="none" stroke="#eee" stroke-width="1.5" transform="rotate(-95,100,100)"/>
+                    <text x="100" y="45" text-anchor="middle" fill="white" font-size="10" font-weight="bold" letter-spacing="4">LOTUS</text>
+                    <text x="100" y="165" text-anchor="middle" fill="white" font-size="7.5" letter-spacing="2">FOOTBALL TEAM</text>
+                    <text x="60"  y="108" text-anchor="middle" fill="#E91E8C" font-size="8" font-weight="bold">20</text>
+                    <text x="140" y="108" text-anchor="middle" fill="#E91E8C" font-size="8" font-weight="bold">26</text>
+                    <path d="M 82 48 l -5 -8 l 5 -8 l 5 8 Z" fill="#E91E8C"/>
+                    <path d="M 118 48 l -5 -8 l 5 -8 l 5 8 Z" fill="#E91E8C"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Title -->
+    <div class="z-10 space-y-2">
+        <p class="fade-up text-pink-500 text-xs tracking-[6px] uppercase" style="animation-delay:.05s">ក្រុមបាល់ទាត់ • Cambodia</p>
+        <h1 class="fade-up text-6xl sm:text-7xl font-black text-white leading-none" style="animation-delay:.12s">LOTUS</h1>
+        <h2 class="fade-up text-4xl sm:text-5xl font-black grad-text leading-none" style="animation-delay:.18s">FOOTBALL TEAM</h2>
+        <p class="fade-up text-gray-600 text-sm tracking-widest" style="animation-delay:.25s">EST. 2026 • Siem Reap</p>
+    </div>
+
+    <!-- Hero Stats -->
+    <div class="fade-up mt-12 grid grid-cols-3 gap-3 w-full max-w-sm z-10" style="animation-delay:.35s">
+        <div class="stat-glass rounded-2xl p-4 text-center">
+            <p class="text-3xl font-black text-white" id="heroTotal">—</p>
+            <p class="text-[10px] text-gray-500 mt-1 tracking-wider">TOTAL</p>
+        </div>
+        <div class="stat-glass rounded-2xl p-4 text-center">
+            <p class="text-3xl font-black text-green-400" id="heroPaid">—</p>
+            <p class="text-[10px] text-gray-500 mt-1 tracking-wider">PAID</p>
+        </div>
+        <div class="stat-glass rounded-2xl p-4 text-center">
+            <p class="text-3xl font-black text-pink-400" id="heroUnpaid">—</p>
+            <p class="text-[10px] text-gray-500 mt-1 tracking-wider">UNPAID</p>
+        </div>
+    </div>
+
+    <!-- Scroll cue -->
+    <a href="#content" class="fade-up mt-14 z-10 flex flex-col items-center gap-1.5 text-gray-600 hover:text-pink-400 transition-colors" style="animation-delay:.45s">
+        <span class="text-[10px] tracking-widest">SCROLL</span>
+        <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </a>
+</section>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<main id="content" class="max-w-7xl mx-auto px-4 py-14">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+        <!-- ── FORM ── -->
+        <div class="lg:col-span-4" id="addPlayer">
+            <div class="bg-white rounded-3xl shadow-xl border border-pink-100/80 overflow-hidden sticky top-24">
+                <!-- Header strip -->
+                <div class="h-1.5 bg-gradient-to-r from-pink-500 via-pink-600 to-pink-800"></div>
+                <div class="p-7">
+                    <div class="flex items-center gap-3 mb-7">
+                        <img src="698919228_936599606043531_2458350962490168042_n.jpg"
+                             onerror="this.style.display='none'"
+                             alt="" class="w-9 h-9 object-contain rounded-full border border-pink-200">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1 ml-1 uppercase">ឈ្មោះកីឡាករ</label>
-                            <input type="text" id="pName" required placeholder="បញ្ចូលឈ្មោះ..." 
-                                class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all">
+                            <h2 class="text-base font-black text-gray-900">បន្ថែមកីឡាករ</h2>
+                            <p class="text-xs text-gray-400">Add New Player</p>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                    </div>
+
+                    <form id="playerForm" class="space-y-5">
+                        <!-- Name -->
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1.5">ឈ្មោះ <span class="text-pink-500">*</span></label>
+                            <input type="text" id="pName" required placeholder="បញ្ចូលឈ្មោះ..." class="form-input">
+                        </div>
+
+                        <!-- Number + Size -->
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1 uppercase">លេខអាវ</label>
-                                <input type="number" id="pNumber" required placeholder="10" 
-                                    class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all">
+                                <label class="block text-xs text-gray-500 mb-1.5">លេខអាវ <span class="text-pink-500">*</span></label>
+                                <input type="number" id="pNumber" required placeholder="10" min="1" max="99" class="form-input">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1 uppercase">ទំហំអាវ</label>
-                                <select id="pSize" class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white outline-none">
-                                    <option value="S">S</option><option value="M">M</option><option value="L" selected>L</option><option value="XL">XL</option><option value="XXL">XXL</option>
+                                <label class="block text-xs text-gray-500 mb-1.5">ទំហំអាវ</label>
+                                <select id="pSize" class="form-input">
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L" selected>L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" id="saveBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex justify-center items-center">
-                            Save
+
+                        <!-- Paid toggle -->
+                        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                            <p class="text-xs text-gray-400 mb-3">ស្ថានភាពបង់ប្រាក់ (Payment)</p>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p id="payLabel" class="text-sm font-bold text-red-500">✗ មិនទាន់បង់</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Tap to toggle</p>
+                                </div>
+                                <div id="toggleTrack" class="toggle-track" onclick="toggleForm()">
+                                    <div class="toggle-thumb"></div>
+                                </div>
+                                <input type="checkbox" id="pPaid" class="hidden">
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" id="saveBtn"
+                            class="w-full bg-gradient-to-r from-pink-600 to-pink-900 text-white font-bold py-4 rounded-2xl
+                                   shadow-lg shadow-pink-200 hover:from-pink-700 hover:to-pink-950
+                                   transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            រក្សាទុក (Save)
                         </button>
                     </form>
                 </div>
             </div>
+        </div>
 
-            <!-- List Display -->
-            <div class="lg:col-span-8">
-                <div id="playerList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Loading State -->
-                    <div class="col-span-full py-20 text-center text-slate-400">
-                        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        កំពុងទាញយកទិន្នន័យ...
-                    </div>
+        <!-- ── PLAYER LIST ── -->
+        <div class="lg:col-span-8">
+            <!-- List header -->
+            <div class="flex items-end justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-900">Player Roster</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">បញ្ជីកីឡាករ LOTUS FC</p>
+                </div>
+                <!-- Filter pills -->
+                <div class="flex gap-1 bg-white rounded-2xl p-1 shadow-sm border border-gray-100">
+                    <button class="filter-btn active" id="f-all"    onclick="setFilter('all')">All</button>
+                    <button class="filter-btn"        id="f-paid"   onclick="setFilter('paid')">Paid ✓</button>
+                    <button class="filter-btn"        id="f-unpaid" onclick="setFilter('unpaid')">Unpaid ✗</button>
                 </div>
             </div>
 
+            <div id="playerList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="col-span-full py-20 text-center text-gray-400">
+                    <div class="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-sm">កំពុងទាញយកទិន្នន័យ…</p>
+                </div>
+            </div>
         </div>
-    </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    </div>
+</main>
 
-        // Your Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCvLqWsufIGI5HYcIdxNsfgEBewHGpmgRc",
-            authDomain: "football-f6834.firebaseapp.com",
-            projectId: "football-f6834",
-            storageBucket: "football-f6834.firebasestorage.app",
-            messagingSenderId: "484850594422",
-            appId: "1:484850594422:web:d2866070b4b429de97e557"
-        };
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="bg-gray-950 mt-8 py-10 px-4 text-center border-t border-gray-900">
+    <div class="flex items-center justify-center gap-3 mb-3">
+        <img src="698919228_936599606043531_2458350962490168042_n.jpg"
+             onerror="this.style.display='none'"
+             alt="" class="w-8 h-8 object-contain rounded-full opacity-60">
+        <span class="text-gray-400 font-bold tracking-widest text-sm">LOTUS FC</span>
+    </div>
+    <p class="text-gray-700 text-xs tracking-wide">© 2026 Lotus Football Team · Siem Reap, Cambodia</p>
+</footer>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const playerCollection = "players_official"; // Collection Name
 
-        // ១. បើកមុខងារ Offline Persistence (ការពារការដាច់ពេល Refresh)
-        enableIndexedDbPersistence(db).catch((err) => {
-            console.error("Persistence error:", err.code);
+<!-- ═══════════════════════ JS ═══════════════════════ -->
+<script type="module">
+    import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged }
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc,
+             onSnapshot, query, orderBy, enableIndexedDbPersistence }
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    /* ── Firebase config (unchanged) ── */
+    const firebaseConfig = {
+        apiKey:            "AIzaSyCvLqWsufIGI5HYcIdxNsfgEBewHGpmgRc",
+        authDomain:        "football-f6834.firebaseapp.com",
+        projectId:         "football-f6834",
+        storageBucket:     "football-f6834.firebasestorage.app",
+        messagingSenderId: "484850594422",
+        appId:             "1:484850594422:web:d2866070b4b429de97e557"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const COL  = "players_official";
+
+    enableIndexedDbPersistence(db).catch(e => console.warn("Persistence:", e.code));
+
+    const playerList = document.getElementById('playerList');
+    let allPlayers   = [];
+    let currentFilter = 'all';
+
+    /* ── Auth ── */
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            document.getElementById('statusText').innerText = 'Online';
+            document.getElementById('statusDot').classList.replace('bg-red-500','bg-green-400');
+            listenToPlayers();
+        } else {
+            signInAnonymously(auth).catch(() => alert("Enable Anonymous Auth in Firebase!"));
+        }
+    });
+
+    /* ── Real-time listener ── */
+    function listenToPlayers() {
+        const q = query(collection(db, COL), orderBy("number","asc"));
+        onSnapshot(q, snap => {
+            allPlayers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            updateStats(allPlayers);
+            renderPlayers(allPlayers);
         });
+    }
 
-        const playerList = document.getElementById('playerList');
-        const statusText = document.getElementById('statusText');
-        const statusDot = document.getElementById('statusDot');
+    /* ── Stats ── */
+    function updateStats(data) {
+        const paid   = data.filter(p => p.paid).length;
+        const unpaid = data.length - paid;
+        document.getElementById('heroTotal').textContent  = data.length;
+        document.getElementById('heroPaid').textContent   = paid;
+        document.getElementById('heroUnpaid').textContent = unpaid;
+    }
 
-        // ២. គ្រប់គ្រងការចូលប្រើប្រាស់ (Authentication)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                statusText.innerText = "អនឡាញ (Online)";
-                statusDot.classList.replace('bg-red-500', 'bg-green-500');
-                listenToPlayers();
-            } else {
-                signInAnonymously(auth).catch(err => alert("សូមបើក Anonymous Auth ក្នុង Firebase!"));
-            }
-        });
+    /* ── Render ── */
+    function renderPlayers(data) {
+        let list = data;
+        if (currentFilter === 'paid')   list = data.filter(p => p.paid);
+        if (currentFilter === 'unpaid') list = data.filter(p => !p.paid);
 
-        // ៣. ទាញយកទិន្នន័យពី Cloud បែប Real-time
-        function listenToPlayers() {
-            const q = query(collection(db, playerCollection), orderBy("number", "asc"));
-            onSnapshot(q, (snapshot) => {
-                const players = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderPlayers(players);
-            }, (error) => {
-                console.error("Snapshot error:", error);
-            });
+        if (!list.length) {
+            playerList.innerHTML = `
+                <div class="col-span-full py-16 bg-white rounded-3xl border-2 border-dashed
+                            border-pink-100 text-center text-gray-400">
+                    <div class="text-5xl mb-3">🌸</div>
+                    <p class="font-bold text-sm">មិនមានកីឡាករ</p>
+                    <p class="text-xs text-gray-300 mt-1">No players found</p>
+                </div>`;
+            return;
         }
 
-        // ៤. បង្ហាញ UI
-        function renderPlayers(data) {
-            if (data.length === 0) {
-                playerList.innerHTML = `<div class="col-span-full py-16 bg-white rounded-3xl border-2 border-dashed border-slate-200 text-center text-slate-400 font-medium">មិនមានកីឡាករក្នុងបញ្ជីនៅឡើយទេ</div>`;
-                return;
-            }
+        playerList.innerHTML = list.map((p, i) => `
+            <div class="player-card bg-white rounded-3xl border overflow-hidden
+                        ${p.paid ? 'border-green-100' : 'border-rose-100'}"
+                 style="animation-delay:${i * .06}s">
 
-            playerList.innerHTML = data.map(p => `
-                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-blue-500 transition-all">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-700 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-100 italic">
+                <!-- Top stripe -->
+                <div class="h-1 ${p.paid
+                    ? 'bg-gradient-to-r from-green-400 to-emerald-500'
+                    : 'bg-gradient-to-r from-pink-500 to-rose-500'}"></div>
+
+                <div class="p-5 flex items-center justify-between gap-3">
+                    <!-- Left: Number + Info -->
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center
+                                    text-white font-black text-2xl italic shadow-md
+                                    ${p.paid
+                                        ? 'bg-gradient-to-br from-pink-500 to-pink-900 shadow-pink-200'
+                                        : 'bg-gradient-to-br from-gray-500 to-gray-700 shadow-gray-200'}">
                             ${p.number}
                         </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800">${p.name}</h3>
-                            <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md uppercase border border-blue-100">
-                                Size: ${p.size}
-                            </span>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-gray-900 truncate">${p.name}</h3>
+                            <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                <span class="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-lg">
+                                    Size ${p.size}
+                                </span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg
+                                    ${p.paid
+                                        ? 'bg-green-50 text-green-600 border border-green-200'
+                                        : 'bg-red-50 text-red-500 border border-red-200 badge-pulse'}">
+                                    ${p.paid ? '✓ Paid' : '✗ Unpaid'}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- មុខងារលុប (Delete Button) -->
-                    <button onclick="window.confirmDelete('${p.id}', '${p.name}')" 
-                        class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+
+                    <!-- Right: Actions -->
+                    <div class="shrink-0 flex flex-col items-end gap-2">
+                        <button onclick="window.togglePaid('${p.id}',${p.paid})"
+                            class="text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all active:scale-95
+                                ${p.paid
+                                    ? 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'
+                                    : 'bg-pink-50 text-pink-600 hover:bg-green-50 hover:text-green-600'}">
+                            ${p.paid ? 'Mark Unpaid' : 'Mark Paid'}
+                        </button>
+                        <button onclick="window.confirmDelete('${p.id}','${p.name}')"
+                            class="p-1.5 text-gray-200 hover:text-red-400 hover:bg-red-50 rounded-xl transition-all">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            `).join('');
+            </div>
+        `).join('');
+    }
+
+    /* ── Add player ── */
+    document.getElementById('playerForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> កំពុងរក្សាទុក…`;
+
+        try {
+            await addDoc(collection(db, COL), {
+                name:      document.getElementById('pName').value.trim(),
+                number:    parseInt(document.getElementById('pNumber').value),
+                size:      document.getElementById('pSize').value,
+                paid:      document.getElementById('pPaid').checked,
+                createdAt: new Date()
+            });
+            e.target.reset();
+            // Reset toggle UI
+            const track = document.getElementById('toggleTrack');
+            track.classList.remove('on');
+            document.getElementById('pPaid').checked = false;
+            document.getElementById('payLabel').textContent = '✗ មិនទាន់បង់';
+            document.getElementById('payLabel').className   = 'text-sm font-bold text-red-500';
+        } catch (err) {
+            alert("Error: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg> រក្សាទុក (Save)`;
         }
+    });
 
-        // ៥. បន្ថែមកីឡាករ
-        document.getElementById('playerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true;
-            btn.innerText = "កំពុងរក្សាទុក...";
+    /* ── Toggle paid ── */
+    window.togglePaid = async (id, current) => {
+        try { await updateDoc(doc(db, COL, id), { paid: !current }); }
+        catch (e) { alert("Update error: " + e.message); }
+    };
 
-            try {
-                await addDoc(collection(db, playerCollection), {
-                    name: document.getElementById('pName').value,
-                    number: parseInt(document.getElementById('pNumber').value),
-                    size: document.getElementById('pSize').value,
-                    createdAt: new Date()
-                });
-                document.getElementById('playerForm').reset();
-            } catch (err) {
-                alert("រក្សាទុកមិនបានសម្រេច: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Save";
-            }
+    /* ── Delete ── */
+    window.confirmDelete = async (id, name) => {
+        if (confirm(`Delete "${name}" from the roster?`)) {
+            try { await deleteDoc(doc(db, COL, id)); }
+            catch (e) { alert("Cannot delete: " + e.message); }
+        }
+    };
+
+    /* ── Filter ── */
+    window.setFilter = type => {
+        currentFilter = type;
+        ['all','paid','unpaid'].forEach(t => {
+            const el = document.getElementById('f-' + t);
+            el.classList.toggle('active', t === type);
         });
+        renderPlayers(allPlayers);
+    };
 
-        // ៦. លុបកីឡាករ (Delete Function)
-        window.confirmDelete = async (id, name) => {
-            if (confirm(`តើអ្នកចង់លុបកីឡាករ "${name}" ចេញពីបញ្ជី?`)) {
-                try {
-                    await deleteDoc(doc(db, playerCollection, id));
-                } catch (err) {
-                    alert("មិនអាចលុបបាន: " + err.message);
-                }
-            }
-        };
+    /* ── Form toggle ── */
+    window.toggleForm = () => {
+        const cb    = document.getElementById('pPaid');
+        const track = document.getElementById('toggleTrack');
+        const label = document.getElementById('payLabel');
+        cb.checked  = !cb.checked;
+        if (cb.checked) {
+            track.classList.add('on');
+            label.textContent = '✓ បានបង់រួច';
+            label.className   = 'text-sm font-bold text-green-500';
+        } else {
+            track.classList.remove('on');
+            label.textContent = '✗ មិនទាន់បង់';
+            label.className   = 'text-sm font-bold text-red-500';
+        }
+    };
 
-    </script>
+    /* ── Floating petals ── */
+    const petalBox = document.getElementById('petals');
+    for (let i = 0; i < 18; i++) {
+        const el = document.createElement('div');
+        el.className = 'petal';
+        const size = Math.random() * 8 + 4;
+        el.style.cssText = `
+            width:${size}px; height:${size}px;
+            left:${Math.random() * 100}%;
+            animation-duration:${Math.random() * 10 + 8}s;
+            animation-delay:${Math.random() * 8}s;
+            opacity:${Math.random() * .4 + .1};
+        `;
+        petalBox.appendChild(el);
+    }
+
+</script>
 </body>
 </html>
